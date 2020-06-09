@@ -6,7 +6,7 @@
 -- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 local push = {
-  
+
   defaults = {
     fullscreen = false,
     resizable = false,
@@ -14,7 +14,7 @@ local push = {
     highdpi = true,
     canvas = true
   }
-  
+
 }
 setmetatable(push, push)
 
@@ -38,7 +38,7 @@ function push:setupScreen(WWIDTH, WHEIGHT, RWIDTH, RHEIGHT, settings)
 
   self:applySettings(self.defaults) --set defaults first
   self:applySettings(settings) --then fill with custom settings
-  
+
   love.window.setMode( self._RWIDTH, self._RHEIGHT, {
     fullscreen = self._fullscreen,
     resizable = self._resizable,
@@ -98,23 +98,23 @@ function push:setShader(name, shader)
 end
 
 function push:initValues()
-  self._PSCALE = self._highdpi and love.window.getPixelScale() or 1
-  
+  self._PSCALE = self._highdpi and love.window.getDPIScale() or 1
+
   self._SCALE = {
     x = self._RWIDTH/self._WWIDTH * self._PSCALE,
     y = self._RHEIGHT/self._WHEIGHT * self._PSCALE
   }
-  
+
   if self._stretched then --if stretched, no need to apply offset
     self._OFFSET = {x = 0, y = 0}
   else
     local scale = math.min(self._SCALE.x, self._SCALE.y)
     if self._pixelperfect then scale = math.floor(scale) end
-    
+
     self._OFFSET = {x = (self._SCALE.x - scale) * (self._WWIDTH/2), y = (self._SCALE.y - scale) * (self._WHEIGHT/2)}
     self._SCALE.x, self._SCALE.y = scale, scale --apply same scale to X and Y
   end
-  
+
   self._GWIDTH = self._RWIDTH * self._PSCALE - self._OFFSET.x * 2
   self._GHEIGHT = self._RHEIGHT * self._PSCALE - self._OFFSET.y * 2
 end
@@ -147,7 +147,7 @@ function push:finish(shader)
 
     love.graphics.pop()
 
-    love.graphics.setColor(255, 255, 255)
+    love.graphics.setColor(1, 1, 1)
 
     --draw canvas
     love.graphics.setCanvas(_render.canvas)
@@ -184,10 +184,10 @@ end
 function push:toGame(x, y)
   x, y = x - self._OFFSET.x, y - self._OFFSET.y
   local normalX, normalY = x / self._GWIDTH, y / self._GHEIGHT
-  
+
   x = (x >= 0 and x <= self._WWIDTH * self._SCALE.x) and normalX * self._WWIDTH or nil
   y = (y >= 0 and y <= self._WHEIGHT * self._SCALE.y) and normalY * self._WHEIGHT or nil
-  
+
   return x, y
 end
 
@@ -199,18 +199,18 @@ end
 function push:switchFullscreen(winw, winh)
   self._fullscreen = not self._fullscreen
   local windowWidth, windowHeight = love.window.getDesktopDimensions()
-  
+
   if self._fullscreen then --save windowed dimensions for later
     self._WINWIDTH, self._WINHEIGHT = self._RWIDTH, self._RHEIGHT
   elseif not self._WINWIDTH or not self._WINHEIGHT then
     self._WINWIDTH, self._WINHEIGHT = windowWidth * .5, windowHeight * .5
   end
-  
+
   self._RWIDTH = self._fullscreen and windowWidth or winw or self._WINWIDTH
   self._RHEIGHT = self._fullscreen and windowHeight or winh or self._WINHEIGHT
-  
+
   self:initValues()
-  
+
   love.window.setFullscreen(self._fullscreen, "desktop")
   if not self._fullscreen and (winw or winh) then
     love.window.setMode(self._RWIDTH, self._RHEIGHT) --set window dimensions
@@ -218,7 +218,7 @@ function push:switchFullscreen(winw, winh)
 end
 
 function push:resize(w, h)
-  local pixelScale = love.window.getPixelScale()
+  local pixelScale = love.window.getDPIScale()
   if self._highdpi then w, h = w / pixelScale, h / pixelScale end
   self._RWIDTH = w
   self._RHEIGHT = h

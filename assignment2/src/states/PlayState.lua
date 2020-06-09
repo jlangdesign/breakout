@@ -29,6 +29,10 @@ function PlayState:enter(params)
     self.ball = params.ball
     self.level = params.level
 
+    math.randomseed(os.time())
+    self.powerup = Powerup(math.random(1, 9))
+    self.timer = 0 -- For spawning Powerup
+
     self.recoverPoints = 5000
 
     -- give ball random starting velocity
@@ -66,7 +70,7 @@ function PlayState:update(dt)
         -- if we hit the paddle on its left side while moving left...
         if self.ball.x < self.paddle.x + (self.paddle.width / 2) and self.paddle.dx < 0 then
             self.ball.dx = -50 + -(8 * (self.paddle.x + self.paddle.width / 2 - self.ball.x))
-        
+
         -- else if we hit the paddle on its right side while moving right...
         elseif self.ball.x > self.paddle.x + (self.paddle.width / 2) and self.paddle.dx > 0 then
             self.ball.dx = 50 + (8 * math.abs(self.paddle.x + self.paddle.width / 2 - self.ball.x))
@@ -103,6 +107,9 @@ function PlayState:update(dt)
             if self:checkVictory() then
                 gSounds['victory']:play()
 
+                -- TODO if more than one ball, reset so
+                -- there's only one again
+
                 gStateMachine:change('victory', {
                     level = self.level,
                     paddle = self.paddle,
@@ -120,35 +127,35 @@ function PlayState:update(dt)
             -- we check to see if the opposite side of our velocity is outside of the brick;
             -- if it is, we trigger a collision on that side. else we're within the X + width of
             -- the brick and should check to see if the top or bottom edge is outside of the brick,
-            -- colliding on the top or bottom accordingly 
+            -- colliding on the top or bottom accordingly
             --
 
             -- left edge; only check if we're moving right, and offset the check by a couple of pixels
             -- so that flush corner hits register as Y flips, not X flips
             if self.ball.x + 2 < brick.x and self.ball.dx > 0 then
-                
+
                 -- flip x velocity and reset position outside of brick
                 self.ball.dx = -self.ball.dx
                 self.ball.x = brick.x - 8
-            
+
             -- right edge; only check if we're moving left, , and offset the check by a couple of pixels
             -- so that flush corner hits register as Y flips, not X flips
             elseif self.ball.x + 6 > brick.x + brick.width and self.ball.dx < 0 then
-                
+
                 -- flip x velocity and reset position outside of brick
                 self.ball.dx = -self.ball.dx
                 self.ball.x = brick.x + 32
-            
+
             -- top edge if no X collisions, always check
             elseif self.ball.y < brick.y then
-                
+
                 -- flip y velocity and reset position outside of brick
                 self.ball.dy = -self.ball.dy
                 self.ball.y = brick.y - 8
-            
+
             -- bottom edge if no X collisions or top collision, last possibility
             else
-                
+
                 -- flip y velocity and reset position outside of brick
                 self.ball.dy = -self.ball.dy
                 self.ball.y = brick.y + 16
@@ -187,6 +194,30 @@ function PlayState:update(dt)
         end
     end
 
+    -- TODO
+    -- if random interval is reached, spawn powerup
+    -- if paddle collides with powerup, the powerup
+    -- disappears, and two more Balls appear
+    self.timer = self.timer + dt
+    if self.timer > math.random(10, 30) then
+      -- release the powerup
+      self.powerup.inPlay = true
+      self.timer = 0
+    end
+
+    -- make the powerup fall
+    if self.powerup.inPlay then
+      self.powerup:update(dt)
+
+      if self.powerup.y > VIRTUAL_HEIGHT
+        or self.powerup:collides(self.paddle) then
+          self.powerup.inPlay = false
+      end
+    else
+      -- reset powerup
+      self.powerup = Powerup(math.random(1, 9))
+    end
+
     -- for rendering particle systems
     for k, brick in pairs(self.bricks) do
         brick:update(dt)
@@ -208,6 +239,7 @@ function PlayState:render()
         brick:renderParticles()
     end
 
+    self.powerup:render()
     self.paddle:render()
     self.ball:render()
 
@@ -225,7 +257,7 @@ function PlayState:checkVictory()
     for k, brick in pairs(self.bricks) do
         if brick.inPlay then
             return false
-        end 
+        end
     end
 
     return true

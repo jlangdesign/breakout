@@ -41,11 +41,11 @@ end
 ]]
 function table.slice(tbl, first, last, step)
     local sliced = {}
-  
+
     for i = first or 1, last or #tbl, step or 1 do
       sliced[#sliced+1] = tbl[i]
     end
-  
+
     return sliced
 end
 
@@ -124,4 +124,21 @@ function GenerateQuadsBalls(atlas)
     end
 
     return quads
+end
+
+--[[
+  This function is specifically made to piece out the powerups from the
+  sprite sheet. Each powerup is 16x16.
+]]
+function GenerateQuadsPowerups(atlas)
+  local x = 0
+  local y = 192
+  local quads = {}
+
+  for i = 1, 9 do
+    quads[i] = love.graphics.newQuad(x, y, 16, 16, atlas:getDimensions())
+    x = x + 16
+  end
+
+  return quads
 end
