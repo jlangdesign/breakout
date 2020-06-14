@@ -40,8 +40,6 @@ function PlayState:enter(params)
     self.recoverPoints = 5000
 
     -- give ball random starting velocity
-    -- self.ball.dx = math.random(-200, 200)
-    -- self.ball.dy = math.random(-50, -60)
     self.balls[1].dx = math.random(-200, 200)
     self.balls[1].dy = math.random(-50, -60)
 end
@@ -171,6 +169,17 @@ function PlayState:updateBall(ball, dt)
   end
 end
 
+function PlayState:addBall()
+  local newBall = Ball()
+  newBall.skin = math.random(7)
+  newBall.x = self.paddle.x + (self.paddle.width / 2) - 4
+  newBall.y = self.paddle.y - 8
+  newBall.dx = math.random(-200, 200)
+  newBall.dy = math.random(-50, -60)
+  table.insert(self.balls, newBall)
+  self.ballCount = self.ballCount + 1
+end
+
 function PlayState:update(dt)
     if self.paused then
         if love.keyboard.wasPressed('space') then
@@ -189,20 +198,30 @@ function PlayState:update(dt)
     self.paddle:update(dt)
 
     -- update each ball in the array of balls
+    local beforeUpdateCount = self.ballCount
     for k, ball in pairs(self.balls) do
       if ball ~= nil then
         self:updateBall(ball, dt)
       end
     end
 
-    -- TODO after updating balls, remove any from array that
+    -- after updating balls, remove any from array that
     -- were marked nil
-    -- for k, ball in pairs(self.balls) do
-    -- end
+    -- (beforeUpdateCount is to prevent for loop from running if no balls
+    -- were marked nil)
+    if beforeUpdateCount ~= self.ballCount and self.ballCount > 0 then
+      local ballsInPlay = {}
+      for k, ball in pairs(self.balls) do
+        if ball ~= nil then
+          table.insert(ballsInPlay, ball)
+        end
+      end
+      self.balls = ballsInPlay
+    end
 
     -- Only lose a heart and revert to save state if last ball is gone
     -- if ball goes below bounds, revert to serve state and decrease health
-    if self.ballCount == 0 then
+    if self.ballCount <= 0 then
         self.health = self.health - 1
 
         if self.health == 0 then
@@ -248,6 +267,8 @@ function PlayState:update(dt)
 
         -- TODO
         -- spawn two more balls by adding to the array
+        self:addBall()
+        self:addBall()
       end
     else
       -- reset powerup
