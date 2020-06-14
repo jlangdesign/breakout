@@ -164,6 +164,8 @@ function PlayState:updateBall(ball, dt)
 
     -- don't use remove(); it reindexes all of the following entries
     -- table.remove(self.balls, ball)
+    -- edit: setting it to nil for garbage collection, but
+    -- the ball ~= nil check never seems to work
     ball = nil
     self.ballCount = self.ballCount - 1
   end
@@ -200,19 +202,16 @@ function PlayState:update(dt)
     -- update each ball in the array of balls
     local beforeUpdateCount = self.ballCount
     for k, ball in pairs(self.balls) do
-      if ball ~= nil then
+      if ball.y < VIRTUAL_HEIGHT then
         self:updateBall(ball, dt)
       end
     end
 
-    -- after updating balls, remove any from array that
-    -- were marked nil
-    -- (beforeUpdateCount is to prevent for loop from running if no balls
-    -- were marked nil)
+    -- after updating balls, remove any from array that fell beyond edge
     if beforeUpdateCount ~= self.ballCount and self.ballCount > 0 then
       local ballsInPlay = {}
       for k, ball in pairs(self.balls) do
-        if ball ~= nil then
+        if ball.y < VIRTUAL_HEIGHT then
           table.insert(ballsInPlay, ball)
         end
       end
@@ -299,7 +298,7 @@ function PlayState:render()
     self.powerup:render()
     self.paddle:render()
     for k, ball in pairs(self.balls) do
-      if ball ~= nil then
+      if ball.y < VIRTUAL_HEIGHT then
         ball:render()
       end
     end
@@ -312,6 +311,11 @@ function PlayState:render()
         love.graphics.setFont(gFonts['large'])
         love.graphics.printf("PAUSED", 0, VIRTUAL_HEIGHT / 2 - 16, VIRTUAL_WIDTH, 'center')
     end
+
+    -- TODO remove when finished debugging
+    -- love.graphics.setFont(gFonts['small'])
+    -- love.graphics.setColor(0, 1, 0, 1)
+    -- love.graphics.print('ballCount: ' .. tostring(self.ballCount), 50, 5)
 end
 
 function PlayState:checkVictory()
