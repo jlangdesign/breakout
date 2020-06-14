@@ -26,7 +26,7 @@ function PlayState:enter(params)
     self.health = params.health
     self.score = params.score
     self.highScores = params.highScores
-    self.ball = params.ball
+    self.ball = params.ball -- TODO add serving ball to array
     self.level = params.level
 
     math.randomseed(os.time())
@@ -107,7 +107,7 @@ function PlayState:update(dt)
             if self:checkVictory() then
                 gSounds['victory']:play()
 
-                -- TODO if more than one ball, reset so
+                -- TODO if more than one ball in array, reset so
                 -- there's only one again
 
                 gStateMachine:change('victory', {
@@ -171,6 +171,7 @@ function PlayState:update(dt)
         end
     end
 
+    -- TODO only lose a heart and revert to save state if last ball is gone
     -- if ball goes below bounds, revert to serve state and decrease health
     if self.ball.y >= VIRTUAL_HEIGHT then
         self.health = self.health - 1
@@ -194,7 +195,6 @@ function PlayState:update(dt)
         end
     end
 
-    -- TODO
     -- if random interval is reached, spawn powerup
     -- if paddle collides with powerup, the powerup
     -- disappears, and two more Balls appear
@@ -209,9 +209,17 @@ function PlayState:update(dt)
     if self.powerup.inPlay then
       self.powerup:update(dt)
 
-      if self.powerup.y > VIRTUAL_HEIGHT
-        or self.powerup:collides(self.paddle) then
-          self.powerup.inPlay = false
+      if self.powerup.y > VIRTUAL_HEIGHT then
+        self.powerup.inPlay = false
+      elseif self.powerup:collides(self.paddle) then
+        self.powerup.inPlay = false
+
+        -- play brick sound if powerup is collected
+        gSounds['brick-hit-1']:stop()
+        gSounds['brick-hit-1']:play()
+
+        -- TODO
+        -- spawn two more balls by adding to the array
       end
     else
       -- reset powerup
