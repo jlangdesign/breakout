@@ -20,18 +20,18 @@ Paddle = Class{}
     of the world horizontally, toward the bottom.
 ]]
 function Paddle:init(skin)
-    -- x is placed in the middle
-    self.x = VIRTUAL_WIDTH / 2 - 32
-
-    -- y is placed a little above the bottom edge of the screen
-    self.y = VIRTUAL_HEIGHT - 32
-
     -- start us off with no velocity
     self.dx = 0
 
     -- starting dimensions
     self.width = 64
     self.height = 16
+
+    -- x is placed in the middle
+    self.x = VIRTUAL_WIDTH / 2 - (self.width / 2)
+
+    -- y is placed a little above the bottom edge of the screen
+    self.y = VIRTUAL_HEIGHT - 32
 
     -- the skin only has the effect of changing our color, used to offset us
     -- into the gPaddleSkins table later
@@ -40,6 +40,16 @@ function Paddle:init(skin)
     -- the variant is which of the four paddle sizes we currently are; 2
     -- is the starting size, as the smallest is too tough to start with
     self.size = 2
+end
+
+function Paddle:shrink()
+  self.size = self.size - 1
+  self.width = self.width - 32
+end
+
+function Paddle:grow()
+  self.size = self.size + 1
+  self.width = self.width + 32
 end
 
 function Paddle:update(dt)

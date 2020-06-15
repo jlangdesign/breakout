@@ -26,7 +26,6 @@ function PlayState:enter(params)
     self.health = params.health
     self.score = params.score
     self.highScores = params.highScores
-    -- self.ball = params.ball
     self.balls = {
       params.ball -- add serving ball to array
     }
@@ -84,6 +83,11 @@ function PlayState:updateBall(ball, dt)
           if self.score > self.recoverPoints then
               -- can't go above 3 health
               self.health = math.min(3, self.health + 1)
+
+              -- grow the paddle if it isn't at max size
+              if self.paddle.size < 4 then
+                self.paddle:grow()
+              end
 
               -- multiply recover points by 2
               self.recoverPoints = math.min(100000, self.recoverPoints * 2)
@@ -223,6 +227,11 @@ function PlayState:update(dt)
     if self.ballCount <= 0 then
         self.health = self.health - 1
 
+        -- shrink the paddle if not the smallest size yet
+        if self.paddle.size > 1 then
+          self.paddle:shrink()
+        end
+
         if self.health == 0 then
             gStateMachine:change('game-over', {
                 score = self.score,
@@ -264,7 +273,6 @@ function PlayState:update(dt)
         gSounds['brick-hit-1']:stop()
         gSounds['brick-hit-1']:play()
 
-        -- TODO
         -- spawn two more balls by adding to the array
         self:addBall()
         self:addBall()
@@ -315,7 +323,9 @@ function PlayState:render()
     -- TODO remove when finished debugging
     -- love.graphics.setFont(gFonts['small'])
     -- love.graphics.setColor(0, 1, 0, 1)
-    -- love.graphics.print('ballCount: ' .. tostring(self.ballCount), 50, 5)
+    -- love.graphics.print('size: ' .. tostring(self.paddle.size), 50, 5)
+    -- love.graphics.print('x: ' .. tostring(self.paddle.x), 100, 5)
+    -- love.graphics.print('width: ' .. tostring(self.paddle.width), 150, 5)
 end
 
 function PlayState:checkVictory()
