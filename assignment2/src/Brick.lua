@@ -60,6 +60,9 @@ function Brick:init(x, y)
     self.width = 32
     self.height = 16
 
+    -- points earned when this brick is hit
+    self.points = self.tier * 200 + self.color * 25
+
     -- used to determine whether this brick should be rendered
     self.inPlay = true
 
