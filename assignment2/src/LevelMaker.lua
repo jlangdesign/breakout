@@ -56,7 +56,7 @@ function LevelMaker.createMap(level)
         local alternatePattern = math.random(1, 2) == 1 and true or false
 
         -- whether we want to include locked bricks for this row
-        local includeLocks = math.random(1, 1) == 1 and true or false
+        local includeLocks = math.random(1, 5) == 1 and true or false
 
         -- choose two colors to alternate between
         local alternateColor1 = math.random(1, highestColor)

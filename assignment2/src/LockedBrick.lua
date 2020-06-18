@@ -8,9 +8,25 @@ LockedBrick = Class{__includes = Brick}
 local particleRGB = .4 -- (102/255)
 
 function LockedBrick:init(x, y)
-  self.super.init(x, y) -- TODO this doesn't work
-  self.isLocked = true
+  -- self.super.init(x, y) -- this doesn't work
+
+  -- only initializing tier and color b/c superclass has them
+  self.tier = 0
+  self.color = 1
+
+  self.x = x
+  self.y = y
+  self.width = 32
+  self.height = 16
+
   self.points = 5000
+  self.inPlay = true
+  self.psystem = love.graphics.newParticleSystem(gTextures['particle'], 64)
+  self.psystem:setParticleLifetime(0.5, 1)
+  self.psystem:setLinearAcceleration(-15, 0, 15, 80)
+  self.psystem:setAreaSpread('normal', 10, 10)
+
+  self.isLocked = true
 end
 
 function LockedBrick:unlock()

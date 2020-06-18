@@ -70,7 +70,7 @@ function GenerateQuadsLockedBricks(atlas)
   local quads = {}
 
   quads['unlocked'] = love.graphics.newQuad(x, y, w, h, atlas:getDimensions())
-  quads['locked'] = love.graphics.newQuad(x + 64, y, w, h, atlas:getDimensions())
+  quads['locked'] = love.graphics.newQuad(x + 96, y, w, h, atlas:getDimensions())
 
   return quads
 end
