@@ -60,6 +60,9 @@ function Brick:init(x, y)
     self.width = 32
     self.height = 16
 
+    -- For check for locked blocks in PlayState
+    self.isLocked = false
+
     -- points earned when this brick is hit
     self.points = self.tier * 200 + self.color * 25
 

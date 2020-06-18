@@ -19,7 +19,6 @@ function LockedBrick:init(x, y)
   self.width = 32
   self.height = 16
 
-  self.points = 5000
   self.inPlay = true
   self.psystem = love.graphics.newParticleSystem(gTextures['particle'], 64)
   self.psystem:setParticleLifetime(0.5, 1)
@@ -27,10 +26,8 @@ function LockedBrick:init(x, y)
   self.psystem:setAreaSpread('normal', 10, 10)
 
   self.isLocked = true
-end
-
-function LockedBrick:unlock()
-  self.isLocked = false
+  -- only worth points if block is unlocked
+  self.points = self.isLocked and 0 or 5000
 end
 
 function LockedBrick:hit()

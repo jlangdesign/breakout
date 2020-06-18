@@ -16,6 +16,8 @@
 
 PlayState = Class{__includes = BaseState}
 
+LOCK_POWERUP = 10 -- index of lock powerup
+
 --[[
     We initialize what's in our PlayState via a state table that we pass between
     states as we go from playing to serving.
@@ -32,8 +34,20 @@ function PlayState:enter(params)
     self.ballCount = 1 -- number of objects in balls array
     self.level = params.level
 
+    -- if there is a single locked brick, the lock powerup
+    -- should spawn eventually
+    hasLocks = false
+    for k, brick in pairs(self.bricks) do
+      if brick.isLocked then
+        hasLocks = true
+        break
+      end
+    end
+    includeLockPowerup = hasLocks and 1 or 0
     math.randomseed(os.time())
-    self.powerup = Powerup(math.random(1, 9))
+    -- last arg in math.random() will be LOCK_POWERUP if
+    -- hasLocks is true, 9 otherwise
+    self.powerup = Powerup(math.random(1, 9 + includeLockPowerup))
     self.timer = 0 -- For spawning Powerup
 
     self.recoverPoints = 5000
@@ -251,8 +265,7 @@ function PlayState:update(dt)
     end
 
     -- if random interval is reached, spawn powerup
-    -- if paddle collides with powerup, the powerup
-    -- disappears, and two more Balls appear
+    -- if paddle collides with powerup, the powerup is used
     self.timer = self.timer + dt
     if self.timer > math.random(10, 30) then
       -- release the powerup
@@ -272,14 +285,23 @@ function PlayState:update(dt)
         -- play brick sound if powerup is collected
         gSounds['brick-hit-1']:stop()
         gSounds['brick-hit-1']:play()
-
-        -- spawn two more balls by adding to the array
-        self:addBall()
-        self:addBall()
+        -- ball powerup vs. lock powerup
+        if self.powerup.skin ~= LOCK_POWERUP then
+          -- spawn two more balls by adding to the array
+          self:addBall()
+          self:addBall()
+        else
+          -- unlock every locked block
+          for k, brick in pairs(self.bricks) do
+            if brick.isLocked then
+              brick.isLocked = false
+            end
+          end
+        end
       end
     else
       -- reset powerup
-      self.powerup = Powerup(math.random(1, 9))
+      self.powerup = Powerup(math.random(1, 9 + includeLockPowerup))
     end
 
     -- for rendering particle systems
@@ -319,13 +341,6 @@ function PlayState:render()
         love.graphics.setFont(gFonts['large'])
         love.graphics.printf("PAUSED", 0, VIRTUAL_HEIGHT / 2 - 16, VIRTUAL_WIDTH, 'center')
     end
-
-    -- TODO remove when finished debugging
-    -- love.graphics.setFont(gFonts['small'])
-    -- love.graphics.setColor(0, 1, 0, 1)
-    -- love.graphics.print('size: ' .. tostring(self.paddle.size), 50, 5)
-    -- love.graphics.print('x: ' .. tostring(self.paddle.x), 100, 5)
-    -- love.graphics.print('width: ' .. tostring(self.paddle.width), 150, 5)
 end
 
 function PlayState:checkVictory()
