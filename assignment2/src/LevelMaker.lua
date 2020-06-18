@@ -65,7 +65,14 @@ function LevelMaker.createMap(level)
         local alternateTier2 = math.random(0, highestTier)
 
         -- used only when we want to skip a block, for skip pattern
-        local skipFlag = math.random(2) == 1 and true or false
+        -- local skipFlag = math.random(2) == 1 and true or false
+        --[[ start with skip if 7 or 11; don't start with
+        skip if 9 or 13 - this means there will always be an
+        odd number of bricks in a row ]]
+        local skipFlag = true
+        if numCols == 9 or numCols == 13 then
+          skipFlag = false
+        end
 
         -- used only when we want to alternate a block, for alternate pattern
         local alternateFlag = math.random(2) == 1 and true or false
