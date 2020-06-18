@@ -70,6 +70,9 @@ function LevelMaker.createMap(level)
         -- used only when we want to alternate a block, for alternate pattern
         local alternateFlag = math.random(2) == 1 and true or false
 
+        -- determines if brick is a locked brick or not in an alternate pattern
+        local lockFlag = math.random(2) == 1 and true or false
+
         -- solid color we'll use if we're not skipping or alternating
         local solidColor = math.random(1, highestColor)
         local solidTier = math.random(0, highestTier)
@@ -87,7 +90,7 @@ function LevelMaker.createMap(level)
                 skipFlag = not skipFlag
             end
 
-            if includeLocks then
+            if includeLocks and lockFlag then
               b = LockedBrick((x-1) * 32 + 8 + (13 - numCols) * 16, y * 16)
             else
               b = Brick(
@@ -107,10 +110,12 @@ function LevelMaker.createMap(level)
                 b.color = alternateColor1
                 b.tier = alternateTier1
                 alternateFlag = not alternateFlag
+                lockFlag = not lockFlag
             else
                 b.color = alternateColor2
                 b.tier = alternateTier2
                 alternateFlag = not alternateFlag
+                lockFlag = not lockFlag
             end
 
             -- if not alternating and we made it here, use the solid color/tier
