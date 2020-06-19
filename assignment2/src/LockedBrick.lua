@@ -49,7 +49,7 @@ function LockedBrick:hit()
 
   -- if block is hit when unlocked, then remove it
   if not self.isLocked then
-    self.psystem.emit(64)
+    self.psystem:emit(64)
     self.inPlay = false
     gSounds['brick-hit-1']:stop()
     gSounds['brick-hit-1']:play()
