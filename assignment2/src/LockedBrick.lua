@@ -27,7 +27,7 @@ function LockedBrick:init(x, y)
 
   self.isLocked = true
   -- only worth points if block is unlocked
-  self.points = self.isLocked and 0 or 5000
+  self.points = 0
 end
 
 function LockedBrick:hit()

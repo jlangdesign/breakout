@@ -94,7 +94,7 @@ function PlayState:updateBall(ball, dt)
           brick:hit()
 
           -- if we have enough points, recover a point of health
-          if self.score > self.recoverPoints then
+          if self.score > self.recoverPoints and not brick.isLocked then
               -- can't go above 3 health
               self.health = math.min(3, self.health + 1)
 
@@ -295,8 +295,11 @@ function PlayState:update(dt)
           for k, brick in pairs(self.bricks) do
             if brick.isLocked then
               brick.isLocked = false
+              brick.points = 5000
             end
           end
+          hasLocks = false
+          includeLockPowerup = 0
         end
       end
     else
